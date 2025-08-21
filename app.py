@@ -15,9 +15,10 @@ app = Flask(__name__)
 def index():
     """Render the schedule table and handle updates from the form."""
     if request.method == 'POST':
+        # Values now come from hidden inputs populated by JS
         for w, week in enumerate(SCHEDULE_DATA):
             for key in ['pick_up_1', 'pick_up_2']:
-                for d, _ in enumerate(DAYS):
+                for d in range(len(DAYS)):
                     field = f'w{w}_{key}_{d}'
                     value = request.form.get(field)
                     if value is not None:
