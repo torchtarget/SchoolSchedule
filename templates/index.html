@@ -10,6 +10,16 @@
     tr.date-row { background: #cfe2f3; font-weight: bold; }
     td.label-cell { font-weight: bold; text-align: left; }
     .status-icon { cursor: pointer; }
+    ul.legend { list-style: none; padding: 0; }
+    ul.legend li { margin-bottom: 5px; }
+    ul.legend span { display: inline-block; min-width: 20px; text-align: center; margin-right: 10px; }
+    .status-tick { color: green; font-weight: bold; }
+    .status-cross { color: red; font-weight: bold; }
+    .status-complicated { color: orange; font-weight: bold; }
+    .status-travel { color: blue; font-style: italic; }
+    .status-office { color: gray; }
+    .status-holiday { color: #DAA520; }
+    .status-unknown { color: purple; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -39,6 +49,12 @@
 {% endfor %}
   <button type="submit">Save</button>
 </form>
+<h2>Legend</h2>
+<ul class="legend">
+  {% for code, details in status_defs|dictsort %}
+    <li>{{ details.html|safe }} : {{ details.desc }}</li>
+  {% endfor %}
+</ul>
 <script>
   const statusDefs = {{ status_defs | tojson }};
   const codes = Object.keys(statusDefs);
