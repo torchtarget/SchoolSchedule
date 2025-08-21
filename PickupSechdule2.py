@@ -16,54 +16,43 @@ DAYS: List[str] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 NUM_DAYS: int = len(DAYS)
 
 # Schedule status codes (using constants for clarity)
-TICK: int = 1
 CROSS: int = 0
-COMPLICATED: int = 2
-TRAVEL: int = 3
-OFFICE: int = 4
-HOLIDAY: int = 5
-UNKNOWN: int = 6 # New status code for Question Mark
+TICK: int = 1
+TRAVEL: int = 2
+OFFICE: int = 3
+UNKNOWN: int = 4  # Question mark / not sure
 
 # Status definitions: code -> {description, text symbol, html representation}
 # Centralized mapping makes updates easier
+
 STATUS_DEFINITIONS: Dict[int, Dict[str, str]] = {
     TICK: {
         "desc": "Available",
-        "text": "\u2713", # Check mark
+        "text": "✓",  # Check mark
         "html": "<span class='status-tick' title='Available'>&#10003;</span>"
     },
     CROSS: {
         "desc": "Unavailable",
-        "text": "\u2717", # Cross mark
+        "text": "✗",  # Cross mark
         "html": "<span class='status-cross' title='Unavailable'>&#10007;</span>"
-    },
-    COMPLICATED: {
-        "desc": "Complicated Drop-off",
-        "text": "\u26A0", # Warning sign
-        "html": "<span class='status-complicated' title='Complicated Drop-off'>&#9888;</span>"
     },
     TRAVEL: {
         "desc": "Travel",
-        "text": "\u2708", # Airplane
+        "text": "✈",  # Airplane
         "html": "<span class='status-travel' title='Travel'>&#9992;</span>"
     },
     OFFICE: {
         "desc": "Office",
-        "text": "\U0001F4BC", # Briefcase
+        "text": "💼",  # Briefcase
         "html": "<span class='status-office' title='Office'>&#128188;</span>"
     },
-    HOLIDAY: {
-        "desc": "Holiday/No School",
-        "text": "\u2600", # Sun
-        "html": "<span class='status-holiday' title='Holiday/No School'>&#9728;</span>"
-    },
-    UNKNOWN: { # Added Question Mark status
+    UNKNOWN: {
         "desc": "Unknown / TBD",
-        "text": "?", # Simple question mark for text
-        "html": "<span class='status-unknown' title='Unknown / TBD'>?</span>" # Simple question mark for HTML
+        "text": "?",
+        "html": "<span class='status-unknown' title='Unknown / TBD'>?</span>"
     }
 }
-DEFAULT_STATUS_CODE: int = HOLIDAY # Use Holiday as the default if code is unknown/invalid
+DEFAULT_STATUS_CODE: int = UNKNOWN
 
 # Path to schedule data file
 DATA_FILE: Path = Path(__file__).resolve().parent / "data" / "schedule.json"
@@ -109,25 +98,24 @@ def get_week_dates(start_date: datetime) -> List[str]:
         for i in range(NUM_DAYS)
     ]
 
-def convert_codes_to_symbols(codes: List[int], format_type: str = 'text') -> List[str]:
-    """Converts a list of status codes to symbols based on format_type ('text' or 'html')."""
+def convert_codes_to_symbols(pairs: List[List[int]], format_type: str = 'text') -> List[str]:
+    """Converts a list of [mother, father] codes to symbols."""
     if format_type not in ['text', 'html']:
         raise ValueError("format_type must be 'text' or 'html'")
 
-    # Use the defined default status if a code isn't found in the map
-    default_definition = STATUS_DEFINITIONS.get(DEFAULT_STATUS_CODE, {"text": "?", "html": "?"})
-    default_symbol = default_definition.get(format_type, "?")
-
-    symbols = []
-    for code in codes:
-        definition = STATUS_DEFINITIONS.get(code)
-        if definition:
-            symbols.append(definition.get(format_type, default_symbol))
+    default_def = STATUS_DEFINITIONS.get(DEFAULT_STATUS_CODE, {"text": "?", "html": "?"})
+    symbols: List[str] = []
+    for pair in pairs:
+        m_code, f_code = pair
+        m_def = STATUS_DEFINITIONS.get(m_code, default_def)
+        f_def = STATUS_DEFINITIONS.get(f_code, default_def)
+        if format_type == 'text':
+            symbols.append(f"M:{m_def['text']} F:{f_def['text']}")
         else:
-            # Handle codes truly not in the map (shouldn't happen with UNKNOWN defined)
-            symbols.append(default_symbol)
-            print(f"Warning: Unknown status code {code} encountered.", file=sys.stderr)
-
+            symbols.append(
+                f"<div class='pair'><span class='status-icon'>{m_def['html']}</span>"
+                f"<span class='status-icon'>{f_def['html']}</span></div>"
+            )
     return symbols
 
 
