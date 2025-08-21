@@ -10,15 +10,16 @@
     tr.date-row { background: #cfe2f3; font-weight: bold; }
     td.label-cell { font-weight: bold; text-align: left; }
     .status-icon { cursor: pointer; }
+    .parent-container { display: flex; }
+    .parent { flex: 1; display: flex; flex-direction: column; align-items: center; }
+    .parent-label { font-size: 0.7em; margin-bottom: 2px; }
     ul.legend { list-style: none; padding: 0; }
     ul.legend li { margin-bottom: 5px; }
     ul.legend span { display: inline-block; min-width: 20px; text-align: center; margin-right: 10px; }
-    .status-tick { color: green; font-weight: bold; }
+    .status-tick { color: #fff; background: green; font-weight: bold; padding: 2px 4px; border-radius: 3px; }
     .status-cross { color: red; font-weight: bold; }
-    .status-complicated { color: orange; font-weight: bold; }
     .status-travel { color: blue; font-style: italic; }
     .status-office { color: gray; }
-    .status-holiday { color: #DAA520; }
     .status-unknown { color: purple; font-weight: bold; }
   </style>
 </head>
@@ -39,8 +40,18 @@
         <td class="label-cell">{{ label }}</td>
         {% for d in range(days|length) %}
           <td>
-            <input type="hidden" id="w{{ w }}_{{ key }}_{{ d }}" name="w{{ w }}_{{ key }}_{{ d }}" value="{{ week[key][d] }}">
-            <span class="status-icon" data-input="w{{ w }}_{{ key }}_{{ d }}">{{ status_defs[week[key][d]].html|safe }}</span>
+            <div class="parent-container">
+              <div class="parent">
+                <span class="parent-label">M</span>
+                <input type="hidden" id="w{{ w }}_{{ key }}_m{{ d }}" name="w{{ w }}_{{ key }}_m{{ d }}" value="{{ week[key][d][0] }}">
+                <span class="status-icon" data-input="w{{ w }}_{{ key }}_m{{ d }}">{{ status_defs[week[key][d][0]].html|safe }}</span>
+              </div>
+              <div class="parent">
+                <span class="parent-label">F</span>
+                <input type="hidden" id="w{{ w }}_{{ key }}_f{{ d }}" name="w{{ w }}_{{ key }}_f{{ d }}" value="{{ week[key][d][1] }}">
+                <span class="status-icon" data-input="w{{ w }}_{{ key }}_f{{ d }}">{{ status_defs[week[key][d][1]].html|safe }}</span>
+              </div>
+            </div>
           </td>
         {% endfor %}
       </tr>

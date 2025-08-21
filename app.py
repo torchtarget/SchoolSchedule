@@ -19,13 +19,14 @@ def index():
         for w, week in enumerate(SCHEDULE_DATA):
             for key in ['pick_up_1', 'pick_up_2']:
                 for d in range(len(DAYS)):
-                    field = f'w{w}_{key}_{d}'
-                    value = request.form.get(field)
-                    if value is not None:
-                        try:
-                            week[key][d] = int(value)
-                        except ValueError:
-                            pass
+                    for role, idx in [('m', 0), ('f', 1)]:
+                        field = f'w{w}_{key}_{role}{d}'
+                        value = request.form.get(field)
+                        if value is not None:
+                            try:
+                                week[key][d][idx] = int(value)
+                            except (ValueError, IndexError):
+                                pass
         save_schedule(SCHEDULE_DATA)
         return redirect(url_for('index'))
 
