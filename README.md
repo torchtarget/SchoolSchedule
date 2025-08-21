@@ -22,5 +22,6 @@ pip install flask prettytable
 python app.py
 ```
 
-Open <http://127.0.0.1:5000> in a browser and use the drop‑down menus to set
-status values for each day. Press **Save** to update the schedule in memory.
+Open <http://127.0.0.1:5000> in a browser and click the icons to set
+status values for each day. Changes are saved automatically. Use **Add Week**
+to extend the schedule or **Remove Week** to delete a completed week.
