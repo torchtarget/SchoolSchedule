@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Pickup Schedule</title>
+  <style>
+    table { border-collapse: collapse; margin-bottom: 1em; }
+    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; }
+    th { background: #d9ead3; }
+    tr.date-row { background: #cfe2f3; font-weight: bold; }
+    td.label-cell { font-weight: bold; text-align: left; }
+  </style>
+</head>
+<body>
+<h1>Pickup Schedule</h1>
+<form method="post">
+{% for w, week in enumerate(schedule) %}
+  <table>
+    <tr class="date-row">
+      <td class="label-cell">Week {{ week.week_start.strftime('%W') }}</td>
+      {% for date in get_week_dates(week.week_start) %}
+        <th>{{ date }}</th>
+      {% endfor %}
+    </tr>
+    {% for key, label in [('pick_up_1', 'Pick AM'), ('pick_up_2', 'Pick PM')] %}
+      <tr>
+        <td class="label-cell">{{ label }}</td>
+        {% for d in range(days|length) %}
+          <td>
+            <select name="w{{ w }}_{{ key }}_{{ d }}">
+              {% for code, info in status_defs.items() %}
+                <option value="{{ code }}" {% if week[key][d] == code %}selected{% endif %}>{{ info.text }}</option>
+              {% endfor %}
+            </select>
+          </td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </table>
+{% endfor %}
+  <button type="submit">Save</button>
+</form>
+</body>
+</html>
