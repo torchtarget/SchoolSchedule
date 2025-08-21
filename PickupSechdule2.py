@@ -11,7 +11,7 @@ from pathlib import Path
 # --- Configuration ---
 
 # Schedule timing
-START_DATE: datetime = datetime(2025, 5, 12)
+START_DATE: datetime = datetime(2025, 8, 25)
 DAYS: List[str] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 NUM_DAYS: int = len(DAYS)
 
