@@ -15,7 +15,8 @@
 <body>
 <h1>Pickup Schedule</h1>
 <form method="post">
-{% for w, week in enumerate(schedule) %}
+{% for week in schedule %}
+  {% set w = loop.index0 %}
   <table>
     <tr class="date-row">
       <td class="label-cell">Week {{ week.week_start.strftime('%W') }}</td>
