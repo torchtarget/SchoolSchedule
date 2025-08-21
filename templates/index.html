@@ -9,6 +9,7 @@
     th { background: #d9ead3; }
     tr.date-row { background: #cfe2f3; font-weight: bold; }
     td.label-cell { font-weight: bold; text-align: left; }
+    .status-icon { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -27,11 +28,8 @@
         <td class="label-cell">{{ label }}</td>
         {% for d in range(days|length) %}
           <td>
-            <select name="w{{ w }}_{{ key }}_{{ d }}">
-              {% for code, info in status_defs.items() %}
-                <option value="{{ code }}" {% if week[key][d] == code %}selected{% endif %}>{{ info.text }}</option>
-              {% endfor %}
-            </select>
+            <input type="hidden" id="w{{ w }}_{{ key }}_{{ d }}" name="w{{ w }}_{{ key }}_{{ d }}" value="{{ week[key][d] }}">
+            <span class="status-icon" data-input="w{{ w }}_{{ key }}_{{ d }}">{{ status_defs[week[key][d]].html|safe }}</span>
           </td>
         {% endfor %}
       </tr>
@@ -40,5 +38,18 @@
 {% endfor %}
   <button type="submit">Save</button>
 </form>
+<script>
+  const statusDefs = {{ status_defs | tojson }};
+  const codes = Object.keys(statusDefs);
+  document.querySelectorAll('.status-icon').forEach(function(el){
+    el.addEventListener('click', function(){
+      const input = document.getElementById(el.dataset.input);
+      const idx = codes.indexOf(input.value);
+      const next = codes[(idx + 1) % codes.length];
+      input.value = next;
+      el.innerHTML = statusDefs[next].html;
+    });
+  });
+</script>
 </body>
 </html>
