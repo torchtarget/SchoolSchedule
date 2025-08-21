@@ -5,6 +5,7 @@ from PickupSechdule2 import (
     SCHEDULE_DATA,
     get_week_dates,
     DAYS,
+    save_schedule,
 )
 
 app = Flask(__name__)
@@ -24,6 +25,7 @@ def index():
                             week[key][d] = int(value)
                         except ValueError:
                             pass
+        save_schedule(SCHEDULE_DATA)
         return redirect(url_for('index'))
 
     return render_template(

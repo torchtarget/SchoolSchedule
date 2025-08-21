@@ -5,6 +5,8 @@ from prettytable import PrettyTable
 from datetime import datetime, timedelta
 import sys
 from typing import List, Dict, Any, Tuple
+import json
+from pathlib import Path
 
 # --- Configuration ---
 
@@ -63,44 +65,40 @@ STATUS_DEFINITIONS: Dict[int, Dict[str, str]] = {
 }
 DEFAULT_STATUS_CODE: int = HOLIDAY # Use Holiday as the default if code is unknown/invalid
 
-# Data for multiple weeks (using constants improves readability)
-# Ensure inner lists have NUM_DAYS elements
-SCHEDULE_DATA: List[Dict[str, Any]] = [
-    {
-        "week_start": START_DATE + timedelta(weeks=0),
-        "pick_up_1": [TICK, TICK, TICK, TICK, OFFICE],
-        "pick_up_2": [TICK, TICK, OFFICE, UNKNOWN, TICK],
-    },
-    {
-        "week_start": START_DATE + timedelta(weeks=1),
-        "pick_up_1": [TICK, TRAVEL, OFFICE, TICK, OFFICE], # Example usage of UNKNOWN
-        "pick_up_2": [TRAVEL, TRAVEL, OFFICE, TICK, TICK],
-    },
-    {
-        "week_start": START_DATE + timedelta(weeks=2), # Added another week for demo
-        "pick_up_1": [TICK, TICK, TICK, HOLIDAY, HOLIDAY], # Example usage of UNKNOWN
-        "pick_up_2": [TICK, TRAVEL, OFFICE, HOLIDAY, HOLIDAY], # Example usage of UNKNOWN
-    },
-    {
-        "week_start": START_DATE + timedelta(weeks=3), # Added another week for demo
-        "pick_up_1": [OFFICE, TICK, TICK, TICK, TICK], # Example usage of UNKNOWN
-        "pick_up_2": [TICK, OFFICE, TICK, TICK, UNKNOWN], # Example usage of UNKNOWN
-    },
+# Path to schedule data file
+DATA_FILE: Path = Path(__file__).resolve().parent / "data" / "schedule.json"
 
-    {
-        "week_start": START_DATE + timedelta(weeks=4), # Added another week for demo
-        "pick_up_1": [HOLIDAY, TICK, TICK, HOLIDAY, HOLIDAY], # Example usage of UNKNOWN
-        "pick_up_2": [HOLIDAY, COMPLICATED, HOLIDAY,OFFICE,TICK], # Example usage of UNKNOWN
-    },
-    {
-        "week_start": START_DATE + timedelta(weeks=5), # Added another week for demo
-        "pick_up_1": [TICK, TICK, TICK,TICK, HOLIDAY], # Example usage of UNKNOWN
-        "pick_up_2": [TICK, TICK, OFFICE,TICK,HOLIDAY], # Example usage of UNKNOWN
-    },
+def load_schedule(file_path: Path = DATA_FILE) -> List[Dict[str, Any]]:
+    """Load schedule data from a JSON file."""
+    if not file_path.exists():
+        return []
+    with file_path.open("r", encoding="utf-8") as f:
+        raw = json.load(f)
+    schedule = []
+    for item in raw:
+        week_start = datetime.fromisoformat(item["week_start"])
+        schedule.append({
+            "week_start": week_start,
+            "pick_up_1": item.get("pick_up_1", []),
+            "pick_up_2": item.get("pick_up_2", []),
+        })
+    return schedule
 
+def save_schedule(schedule: List[Dict[str, Any]], file_path: Path = DATA_FILE) -> None:
+    """Persist schedule data to a JSON file."""
+    serializable = []
+    for item in schedule:
+        serializable.append({
+            "week_start": item["week_start"].strftime("%Y-%m-%d"),
+            "pick_up_1": item["pick_up_1"],
+            "pick_up_2": item["pick_up_2"],
+        })
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with file_path.open("w", encoding="utf-8") as f:
+        json.dump(serializable, f, indent=2)
 
-    # Add more weeks as needed
-]
+# Load schedule data from JSON file
+SCHEDULE_DATA: List[Dict[str, Any]] = load_schedule()
 
 # --- Helper Functions ---
 
